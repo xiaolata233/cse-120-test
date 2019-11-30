@@ -5,6 +5,8 @@ import nachos.threads.*;
 import nachos.userprog.*;
 import nachos.vm.*;
 
+import java.util.HashMap;
+
 /**
  * A <tt>UserProcess</tt> that supports demand-paging.
  */
@@ -14,6 +16,7 @@ public class VMProcess extends UserProcess {
 	 */
 	public VMProcess() {
 		super();
+		vpnToSection = new int[numPages][2];
 	}
 
 	/**
@@ -39,7 +42,56 @@ public class VMProcess extends UserProcess {
 	 * @return <tt>true</tt> if successful.
 	 */
 	protected boolean loadSections() {
-		return super.loadSections();
+		System.out.println("Got in loadSections");
+		// Begin mutex block
+		UserKernel.page_lock.acquire();
+		if (numPages > Machine.processor().getNumPhysPages()) {
+			coff.close();
+			Lib.debug(dbgProcess, "\tinsufficient physical memory");
+			UserKernel.page_lock.release();
+			return false;
+		}
+		pageTable = new TranslationEntry[numPages];
+		for (int i = 0; i < numPages; i++)
+			pageTable[i] = new TranslationEntry(i, i, false, false, false, false);
+		// load sections
+		int temp_vpn, page_count, ppn;
+		temp_vpn = 0;
+		page_count = 0;
+		for (int s = 0; s < coff.getNumSections(); s++) {
+			CoffSection section = coff.getSection(s);
+
+			Lib.debug(dbgProcess, "\tinitializing " + section.getName()
+					+ " section (" + section.getLength() + " pages)");
+
+			for (int i = 0; i < section.getLength(); i++) {
+				int vpn = section.getFirstVPN() + i;
+				temp_vpn = vpn;
+//				ppn = UserKernel.free_pages.removeLast();
+//				used_free_pages.add(ppn);
+				// Cannot assume virtual addresses == physical addresses
+//				section.loadPage(i, ppn);
+
+				vpnToSection[vpn] = new int[]{s, i};
+				pageTable[page_count].vpn = vpn;
+				pageTable[page_count].readOnly = section.isReadOnly();
+				page_count++;
+			}
+		}
+		int available_pages = 0;
+		available_pages = numPages - page_count;
+		temp_vpn++;
+		for (int i = 0; i < available_pages; i++) {
+			ppn = UserKernel.free_pages.removeLast();
+			pageTable[page_count + i].vpn = temp_vpn + i;
+			// -1 means args or stack section.
+			vpnToSection[temp_vpn + i] = new int[]{-1, i};
+//			pageTable[page_count + i] = new TranslationEntry(temp_vpn + i, ppn, true, false, false, false);
+		}
+		UserKernel.page_lock.release();
+		// End mutex block
+		System.out.println("Exiting in loadSections");
+		return true;
 	}
 
 	/**
@@ -47,6 +99,105 @@ public class VMProcess extends UserProcess {
 	 */
 	protected void unloadSections() {
 		super.unloadSections();
+	}
+
+	public int readVirtualMemory(int vaddr, byte[] data, int offset, int length) {
+		System.out.println("Got in readVirtualMemory");
+		Lib.assertTrue(offset >= 0 && length >= 0
+				&& offset + length <= data.length);
+
+		byte[] memory = Machine.processor().getMemory();
+
+		// Multiprogramming modifications
+
+		if (vaddr < 0) {
+			System.out.println("vaddr < 0, returning 0");
+			return 0;
+		}
+
+		int bytes_left = length;
+		int paddr, paddr_offset, vpn;
+		// Initialize physical address to -1
+		paddr = -1;
+		// Get the physical address offset
+		paddr_offset = Processor.offsetFromAddress(vaddr);
+		// Get virtual page number
+		vpn = Processor.pageFromAddress(vaddr);
+		// Loop through our pageTable, find next valid page
+		for (int i = 0; i < pageTable.length; i++) {
+			if (pageTable[i].vpn == vpn) {
+				if(pageTable[i].valid == false) {
+					handlePageFault(vpn);
+				}
+				paddr = pageTable[i].ppn * pageSize + paddr_offset;
+				break;
+			}
+		}
+		// Check physical address
+		if (paddr < 0 || paddr >= memory.length) {
+			System.out.println("paddr < 0 || paddr >= memory.length, returning 0");
+			return 0;
+		}
+		int amount, total_amount;
+		total_amount = 0;
+		amount = Math.min(bytes_left, pageSize - paddr_offset);
+		System.arraycopy(memory, paddr, data, offset, amount);
+		bytes_left -= amount;
+		offset += amount;
+		total_amount += amount;
+		boolean found = false;
+		vpn++;
+		// Loop until error or the entire length is read
+		while (bytes_left > 0) {
+			// Loop through our pageTable, find next valid page
+			for (int i = 0; i < pageTable.length; i++) {
+				if (pageTable[i].vpn == vpn) {
+					if(pageTable[i].valid == false){
+						handlePageFault(vpn);
+					}
+					paddr = pageTable[i].ppn * pageSize;
+					found = true;
+					break;
+				}
+			}
+			// Check validity
+			if (paddr < 0 || paddr >= memory.length || !found) {
+				System.out.println("paddr < 0 || paddr >= memory.length || !found, returning total_amount");
+				return total_amount;
+			}
+
+			// Reset found
+			found = false;
+			amount = Math.min(bytes_left, pageSize);
+			System.arraycopy(memory, paddr, data, offset, amount);
+			bytes_left -= amount;
+			offset += amount;
+			total_amount += amount;
+			vpn++;
+		}
+		System.out.println("Exiting readVirtualMemory");
+		return total_amount;
+	}
+
+	/**
+	 * Handle page fault
+	 */
+	protected void handlePageFault(int vpn){
+		TranslationEntry entry = pageTable[vpn];
+		int sectionNum = vpnToSection[vpn][0], i = vpnToSection[vpn][1];
+		int ppn = VMKernel.getFreePPN();
+		if(sectionNum == -1){
+			// load a stack or args page
+			byte[] mem = Machine.processor().getMemory();
+			byte[] buf = new byte[pageSize];
+			System.arraycopy(buf, 0, mem, ppn*pageSize, pageSize);
+		}else{
+			// load a page from coff
+			CoffSection section = coff.getSection(sectionNum);
+			section.loadPage(i, ppn);
+		}
+		entry.ppn = ppn;
+		entry.valid = true;
 	}
 
 	/**
@@ -67,6 +218,8 @@ public class VMProcess extends UserProcess {
 	}
 
 	private static final int pageSize = Processor.pageSize;
+
+	private int[][] vpnToSection;
 
 	private static final char dbgProcess = 'a';
 

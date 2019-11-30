@@ -53,6 +53,7 @@ public class ThreadedKernel extends Kernel {
 //			ElevatorBank.selfTest();
 //		}
 		nachos.threads.Rendezvous.rendezTest1();
+		System.out.println("rendez test finished");
 	}
 
 	/**

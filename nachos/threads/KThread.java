@@ -204,6 +204,12 @@ public class KThread {
 
 		currentThread.status = statusFinished;
 
+		if(this.joinThread != null) this.joinThread.ready();
+//		KThread thread=joinQueue.nextThread();
+//		if(thread!=null){
+//			thread.ready();
+//		}
+
 		sleep();
 	}
 
@@ -290,15 +296,17 @@ public class KThread {
 		}
 
 		boolean inStatus=Machine.interrupt().disable();
-		Lib.assertTrue(!KThread.currentThread.isJoined);
 
-		joinQueue.waitForAccess(currentThread);
-		isJoined=true;
-		sleep();
+//		Lib.assertTrue(!this.isJoined);
+//		joinQueue.waitForAccess(currentThread);
+//		currentThread.sleep();
+//		this.isJoined=true;
+
+		Lib.assertTrue(this.joinThread == null);
+		this.joinThread = currentThread;
+		currentThread.sleep();
 
 		Machine.interrupt().restore(inStatus);
-
-
 	}
 
 	/**
@@ -440,6 +448,20 @@ public class KThread {
 		});
 		child1.setName("child1").fork();
 
+		KThread child2 = new KThread( new Runnable () {
+			public void run() {
+				System.out.println("I (heart) Nachos!");
+			}
+		});
+		child2.setName("child2").fork();
+
+		KThread child3 = new KThread( new Runnable () {
+			public void run() {
+				System.out.println("I (heart) Nachos!");
+			}
+		});
+		child3.setName("child3").fork();
+
 		// We want the child to finish before we call join.  Although
 		// our solutions to the problems cannot busy wait, our test
 		// programs can!
@@ -450,8 +472,14 @@ public class KThread {
 		}
 
 		child1.join();
+		child2.join();
+		child3.join();
 		System.out.println("After joining, child1 should be finished.");
 		System.out.println("is it? " + (child1.status == statusFinished));
+		System.out.println("After joining, child2 should be finished.");
+		System.out.println("is it? " + (child2.status == statusFinished));
+		System.out.println("After joining, child3 should be finished.");
+		System.out.println("is it? " + (child3.status == statusFinished));
 		Lib.assertTrue((child1.status == statusFinished), " Expected child1 to be finished.");
 	}
 
@@ -465,6 +493,8 @@ public class KThread {
 	public Object schedulingState = null;
 
 	private boolean isJoined=false;
+
+	private KThread joinThread = null;
 
 	private static final int statusNew = 0;
 

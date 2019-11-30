@@ -12,11 +12,11 @@ public class Rendezvous {
         Lock lock;
         Condition condition;
         Integer value;
-        Integer finished;
+        Integer exchaning;
         public Control(){
             this.lock = new Lock();
             condition = new Condition(lock);
-            finished = 1;
+            exchaning = 0;
             value = null;
         }
     }
@@ -46,33 +46,34 @@ public class Rendezvous {
      * @param value the integer to exchange.
      */
     public int exchange (int tag, int value) throws InterruptedException {
-        boolean inStatus=Machine.interrupt().disable();
+        //boolean inStatus=Machine.interrupt().disable();
         Integer new_value = null;
         if(!controls.containsKey(tag)) controls.put(tag, new Control());
         Control control = controls.get(tag);
-        Machine.interrupt().restore(inStatus);
+        //Machine.interrupt().restore(inStatus);
 
-        //System.out.println ("Thread " + KThread.currentThread().getName() + " running ");
         control.lock.acquire();
-        while(control.finished == 0) control.condition.sleep();
+        // if there are other threads exchaning on the tag, wait
+        while(control.exchaning == 1) {
+//            System.out.println("Thread " + KThread.currentThread().getName() + " waiting ");
+            control.condition.sleep();
+        }
+
+        // if this is the first arrived thread
         if(control.value == null){
-            //System.out.println ("Thread " + KThread.currentThread().getName() + " sending ");
             control.value = value;
             control.condition.sleep();
             new_value = control.value;
-            control.finished = 1;
-            control.condition.wake();
+            control.exchaning = 0;
             control.value = null;
+            control.condition.wakeAll();
         }else{
-            //System.out.println ("Thread " + KThread.currentThread().getName() + " receiving " );
-            control.finished = 0;
+            control.exchaning = 1;
             new_value = control.value;
             control.value = value;
             control.condition.wake();
         }
         control.lock.release();
-
-        //System.out.println ("Thread " + KThread.currentThread().getName() + " return " );
         return new_value;
     }
 
