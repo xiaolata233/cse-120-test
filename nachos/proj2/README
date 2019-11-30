@@ -1,0 +1,7 @@
+Team members:
+YIFAN CAO   A53310419
+CHEN XU     A13636618
+
+Project description:
+
+This project is much harder than the last one, we were a little worried about our missed cases from last project would affect this project but it turned out to be just fine. Both of us started the project following the writeup closely, we finished part1 rather early but ran into problems in part2. We weren't sure how to modify read/write virtual memory functions, and it took us a long time to finally finish debugging our code. We spent quite some time together in the library.For part3 we really wanted to use KThread.join() to handle join syscall, however, it kept getting stuck and we weren't able to find out exacly why, so we will definitely go to the office hour and find out why. We used unit testing to debug our program, one method at a time so we don't get overwhelmed by bugs later on. We weren't able to find the time to attempt the extra credit portion. 

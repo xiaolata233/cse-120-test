@@ -59,7 +59,6 @@ public class KThread {
 		}
 		else {
 			readyQueue = ThreadedKernel.scheduler.newThreadQueue(false);
-			joinQueue=ThreadedKernel.scheduler.newThreadQueue(false);
 			readyQueue.acquire(this);
 
 			currentThread = this;
@@ -203,13 +202,12 @@ public class KThread {
 		toBeDestroyed = currentThread;
 
 		currentThread.status = statusFinished;
-
-		if(this.joinThread != null) this.joinThread.ready();
-//		KThread thread=joinQueue.nextThread();
-//		if(thread!=null){
-//			thread.ready();
-//		}
-
+		// Wake parent thread in case of join()
+		if (currentThread.getParent() != null)
+		{
+			Lib.debug(dbgThread, "Readying thread: " + currentThread.getParent().toString());
+			currentThread.getParent().ready();
+		}
 		sleep();
 	}
 
@@ -287,27 +285,71 @@ public class KThread {
 	 * return immediately. This method must only be called once; the second call
 	 * is not guaranteed to return. This thread must not be the current thread.
 	 */
+	/**
+	 * we say that thread B joins with thread A. When B calls join on A, 
+	 * there are two possibilities. If A has already finished, 
+	 * then B returns immediately from join without waiting. 
+	 * If A has not finished, then B waits inside of join until A finishes; 
+	 * when A finishes, it resumes B. 
+	 */
 	public void join() {
+		System.out.println("KThread.join()");
 		Lib.debug(dbgThread, "Joining to thread: " + toString());
-
+		// A thread can not join itself
 		Lib.assertTrue(this != currentThread);
-		if(this.status==statusFinished){
+		// A thread can only be joined once
+		Lib.assertTrue(!this.joined);
+		// Case 1: A has finished, B returns immediately
+		if(this.status == statusFinished)
 			return;
-		}
+		// Case 2: A has not finished, B waits inside of join 
+		// until A finishes. When A finishes, B resumes.
+		
+		// Disable interrupt
+		boolean state = Machine.interrupt().disable();
+		// put the current thread to the joinQueue
+		// joinQueue.waitForAccess(currentThread);
+		// Set join parent thread
+		joinedParent = currentThread;
+		// Parent thread sleep inside of join()
+		//System.out.println("CurrentThread.sleep()");
+		this.joinedParent = currentThread();
+		//System.out.println("After sleep");
+		joined = true;
+		this.joinedParent.sleep();
+		//sleep();
 
-		boolean inStatus=Machine.interrupt().disable();
+		Machine.interrupt().restore(state);
 
-//		Lib.assertTrue(!this.isJoined);
-//		joinQueue.waitForAccess(currentThread);
-//		currentThread.sleep();
-//		this.isJoined=true;
-
-		Lib.assertTrue(this.joinThread == null);
-		this.joinThread = currentThread;
-		currentThread.sleep();
-
-		Machine.interrupt().restore(inStatus);
 	}
+	
+	/**
+	 * Accessor function for private member variable wake_time
+	 *
+	 */
+	public long getWakeTime()
+	{
+		return wake_time;
+	}
+	
+	/**
+	 * Accessor function for private member variable joinedParent
+	 * 
+	 */
+	public KThread getParent()
+	{
+		return joinedParent;
+	}
+	
+	/**
+	 * Mutator function for private member variable wake_time
+	 * 
+	 */
+	public void setWakeTime(long time)
+	{
+		wake_time = time;
+	}
+
 
 	/**
 	 * Create the idle thread. Whenever there are no threads ready to be run,
@@ -428,6 +470,29 @@ public class KThread {
 
 		private int which;
 	}
+	
+    private static void joinTest1 () {
+	KThread child1 = new KThread( new Runnable () {
+		public void run() {
+		    System.out.println("I (heart) Nachos!");
+		}
+	    });
+	child1.setName("child1").fork();
+
+	// We want the child to finish before we call join.  Although
+	// our solutions to the problems cannot busy wait, our test
+	// programs can!
+
+	for (int i = 0; i < 5; i++) {
+	    System.out.println ("busy...");
+	    KThread.currentThread().yield();
+	}
+
+	child1.join();
+	System.out.println("After joining, child1 should be finished.");
+	System.out.println("is it? " + (child1.status == statusFinished));
+	Lib.assertTrue((child1.status == statusFinished), " Expected child1 to be finished.");
+    }
 
 	/**
 	 * Tests whether this module is working.
@@ -440,49 +505,6 @@ public class KThread {
 		joinTest1();
 	}
 
-	private static void joinTest1 () {
-		KThread child1 = new KThread( new Runnable () {
-			public void run() {
-				System.out.println("I (heart) Nachos!");
-			}
-		});
-		child1.setName("child1").fork();
-
-		KThread child2 = new KThread( new Runnable () {
-			public void run() {
-				System.out.println("I (heart) Nachos!");
-			}
-		});
-		child2.setName("child2").fork();
-
-		KThread child3 = new KThread( new Runnable () {
-			public void run() {
-				System.out.println("I (heart) Nachos!");
-			}
-		});
-		child3.setName("child3").fork();
-
-		// We want the child to finish before we call join.  Although
-		// our solutions to the problems cannot busy wait, our test
-		// programs can!
-
-		for (int i = 0; i < 5; i++) {
-			System.out.println ("busy...");
-			KThread.currentThread().yield();
-		}
-
-		child1.join();
-		child2.join();
-		child3.join();
-		System.out.println("After joining, child1 should be finished.");
-		System.out.println("is it? " + (child1.status == statusFinished));
-		System.out.println("After joining, child2 should be finished.");
-		System.out.println("is it? " + (child2.status == statusFinished));
-		System.out.println("After joining, child3 should be finished.");
-		System.out.println("is it? " + (child3.status == statusFinished));
-		Lib.assertTrue((child1.status == statusFinished), " Expected child1 to be finished.");
-	}
-
 	private static final char dbgThread = 't';
 
 	/**
@@ -491,10 +513,6 @@ public class KThread {
 	 * @see nachos.threads.PriorityScheduler.ThreadState
 	 */
 	public Object schedulingState = null;
-
-	private boolean isJoined=false;
-
-	private KThread joinThread = null;
 
 	private static final int statusNew = 0;
 
@@ -530,11 +548,18 @@ public class KThread {
 
 	private static ThreadQueue readyQueue = null;
 
-	private static ThreadQueue joinQueue=null;
-
 	private static KThread currentThread = null;
 
 	private static KThread toBeDestroyed = null;
 
 	private static KThread idleThread = null;
+	
+	/* Added private variables */
+	// Variable to keep track of wake time for alarm
+	private long wake_time = 0;
+	// Variable to keep track the join status of the thread
+	private boolean joined = false;
+	//private static ThreadQueue joinQueue = null;
+	// Variable to keep track of the parent thread for join()
+	private KThread joinedParent = null;
 }

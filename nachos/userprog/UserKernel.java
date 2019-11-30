@@ -16,7 +16,7 @@ public class UserKernel extends ThreadedKernel {
 	public UserKernel() {
 		super();
 	}
-
+	
 	/**
 	 * Return one free page number.
 	 */
@@ -28,7 +28,7 @@ public class UserKernel extends ThreadedKernel {
 		page_lock.release();
 		return page;
 	}
-
+	
 	/**
 	 * Add one free page.
 	 */
@@ -37,10 +37,13 @@ public class UserKernel extends ThreadedKernel {
 		free_pages.add(ppn);
 		page_lock.release();
 	}
-
-	public void freePagesCount(){
+	
+	public int freePagesCount(){
 		return free_pages.size();
 	}
+	
+	
+
 	/**
 	 * Initialize this kernel. Creates a synchronized console and sets the
 	 * processor's exception handler.
@@ -49,11 +52,11 @@ public class UserKernel extends ThreadedKernel {
 		super.initialize(args);
 
 		console = new SynchConsole(Machine.console());
-
+		
 		// Part 2 modifications:
 		free_pages = new LinkedList<Integer>();
+		process_lock = new Lock();
 		page_lock = new Lock();
-		process_count_lock = new Lock();
 		// Assign physical page number to the free pages
 		for (int i = 0; i < Machine.processor().getNumPhysPages(); i ++)
 			free_pages.add(i);
@@ -86,7 +89,7 @@ public class UserKernel extends ThreadedKernel {
 
 	/**
 	 * Returns the current process.
-	 *
+	 * 
 	 * @return the current process, or <tt>null</tt> if no process is current.
 	 */
 	public static UserProcess currentProcess() {
@@ -99,7 +102,7 @@ public class UserKernel extends ThreadedKernel {
 	/**
 	 * The exception handler. This handler is called by the processor whenever a
 	 * user instruction causes a processor exception.
-	 *
+	 * 
 	 * <p>
 	 * When the exception handler is invoked, interrupts are enabled, and the
 	 * processor's cause register contains an integer identifying the cause of
@@ -121,7 +124,7 @@ public class UserKernel extends ThreadedKernel {
 	 * Start running user programs, by creating a process and running a shell
 	 * program in it. The name of the shell program it must run is returned by
 	 * <tt>Machine.getShellProgramName()</tt>.
-	 *
+	 * 
 	 * @see nachos.machine.Machine#getShellProgramName
 	 */
 	public void run() {
@@ -131,15 +134,16 @@ public class UserKernel extends ThreadedKernel {
 
 		String shellProgram = Machine.getShellProgramName();
 		if (!process.execute(shellProgram, new String[] {})) {
-			System.out.println ("Could not find executable '" +
+		    System.out.println ("Could not find executable '" +
 					shellProgram + "', trying '" +
 					shellProgram + ".coff' instead.");
-			shellProgram += ".coff";
-			if (!process.execute(shellProgram, new String[] {})) {
-				System.out.println ("Also could not find '" +
-						shellProgram + "', aborting.");
-				Lib.assertTrue(false);
-			}
+		    shellProgram += ".coff";
+		    if (!process.execute(shellProgram, new String[] {})) {
+			System.out.println ("Also could not find '" +
+					    shellProgram + "', aborting.");
+			Lib.assertTrue(false);
+		    }
+
 		}
 
 		KThread.currentThread().finish();
@@ -152,27 +156,18 @@ public class UserKernel extends ThreadedKernel {
 		super.terminate();
 	}
 
-	public int addProcess(){
-		process_count_lock.acquire();
-		int curr_pid = pid++;
-		activeProcess++;
-		process_count_lock.release();
-		return curr_pid;
-	}
-
 	/** Globally accessible reference to the synchronized console. */
 	public static SynchConsole console;
 
 	// dummy variables to make javac smarter
 	private static Coff dummy1 = null;
-
+	
 	// Added variables
 	// Data structure that holds the free pages in the kernel
-	private static LinkedList<Integer> free_pages;
-
-	public static int processCount = 0;
-	private static Lock process_count_lock;
-	private static Lock page_lock;
-	private static int pid = 0;
-	public static int activeProcess = 0;
+	public static LinkedList<Integer> free_pages;
+	public static Lock process_lock;
+	public static Lock page_lock;
+	public static int pid = 0;
+	// Number of running processes
+	public static int process_num = 0;
 }

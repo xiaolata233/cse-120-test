@@ -1,0 +1,15 @@
+Team members:
+YIFAN CAO   A53310419
+CHEN XU     A13636618
+
+Project description:
+
+    We used the lecture slides and project writeup as our guideline for PA1.
+We found this to be the most useful way to tackle this project. Also reading
+the function description is very helpful as well. We tested our code against
+the given simple test cases at first, then we tried to implement our own tests
+based off the given test cases. We divided the work in half. 2&5 for Yifan since
+5 needs 2 to work. 1,3&4 for Chen. We ran into a problem with 5 due to an error
+we made in join(). After we fix the problem in join(), 5's problem was resolved.
+The most important thing we learned is that to always keep track of what the
+current thread actually is. 

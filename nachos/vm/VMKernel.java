@@ -44,12 +44,11 @@ public class VMKernel extends UserKernel {
 		super.terminate();
 	}
 
-	public int getFreePPN(){
+	public static int getFreePPN(){
 		if(UserKernel.free_pages.size() == 0){
 			return -1;
 		}
 		int ppn = UserKernel.free_pages.removeLast();
-		used_free_pages.add(ppn);
 		return ppn;
 	}
 

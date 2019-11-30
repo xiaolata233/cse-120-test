@@ -196,6 +196,7 @@ public class VMProcess extends UserProcess {
 			CoffSection section = coff.getSection(sectionNum);
 			section.loadPage(i, ppn);
 		}
+		used_free_pages.add(ppn);
 		entry.ppn = ppn;
 		entry.valid = true;
 	}
