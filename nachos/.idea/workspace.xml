@@ -6,6 +6,7 @@
       <change beforePath="$PROJECT_DIR$/bin/nachos/vm/VMKernel$Meta.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/nachos/vm/VMKernel$Meta.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/nachos/vm/VMKernel.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/nachos/vm/VMKernel.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/nachos/vm/VMProcess.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/nachos/vm/VMProcess.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/test/bad.out" beforeDir="false" afterPath="$PROJECT_DIR$/bin/test/bad.out" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/vm/VMKernel.java" beforeDir="false" afterPath="$PROJECT_DIR$/vm/VMKernel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/vm/VMProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/vm/VMProcess.java" afterDir="false" />
     </list>
@@ -44,7 +45,7 @@
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <option name="MAIN_CLASS_NAME" value="nachos.machine.Machine" />
       <module name="CSE120 Proj 1" />
-      <option name="PROGRAM_PARAMETERS" value="-m 38 -x write10.coff" />
+      <option name="PROGRAM_PARAMETERS" value="-m 27 -x write10.coff" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/proj3" />
       <method v="2">
         <option name="Make" enabled="true" />

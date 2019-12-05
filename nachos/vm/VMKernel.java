@@ -103,7 +103,7 @@ public class VMKernel extends UserKernel {
 			waitlist.get(0).ready();
 		}
 	}
-	
+
 	public static void ref(int ppn){
 		ppnToProcess[ppn].ref = true;
 	}

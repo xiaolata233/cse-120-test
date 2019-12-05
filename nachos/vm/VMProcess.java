@@ -84,7 +84,7 @@ public class VMProcess extends UserProcess {
 		available_pages = numPages - page_count;
 		temp_vpn++;
 		for (int i = 0; i < available_pages; i++) {
-			ppn = UserKernel.free_pages.removeLast();
+			//ppn = UserKernel.free_pages.removeLast();
 			pageTable[page_count + i].vpn = temp_vpn + i;
 			// -1 means args or stack section.
 			vpnToSection[temp_vpn + i] = new int[]{-1, i};
