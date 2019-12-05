@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="8fcf7ee3-81cd-4b9e-90fc-ed784a280106" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/nachos/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/nachos/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/nachos/nachos/threads/KThread$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/nachos/nachos/threads/KThread$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/nachos/nachos/threads/KThread$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/nachos/nachos/threads/KThread$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/nachos/nachos/threads/KThread$PingTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/nachos/nachos/threads/KThread$PingTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/nachos/nachos/threads/KThread.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/nachos/nachos/threads/KThread.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/nachos/nachos/threads/Rendezvous$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/nachos/nachos/threads/Rendezvous$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/nachos/nachos/threads/Rendezvous$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/nachos/nachos/threads/Rendezvous$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/nachos/nachos/threads/Rendezvous$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/nachos/nachos/threads/Rendezvous$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/nachos/nachos/threads/Rendezvous$4.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/nachos/nachos/threads/Rendezvous$4.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/nachos/nachos/threads/Rendezvous.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/nachos/nachos/threads/Rendezvous.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/nachos/nachos/threads/ThreadedKernel.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/nachos/nachos/threads/ThreadedKernel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/threads/KThread.java" beforeDir="false" afterPath="$PROJECT_DIR$/threads/KThread.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/threads/Rendezvous.java" beforeDir="false" afterPath="$PROJECT_DIR$/threads/Rendezvous.java" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectId" id="1SIf2a1pusiBhS93mW7UNYhWaPz" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/.." />
+    <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Application.Machine">
+    <configuration name="KThread" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="nachos.threads.KThread" />
+      <module name="nachos" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="nachos.threads.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Machine" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="nachos.machine.Machine" />
+      <module name="nachos" />
+      <option name="PROGRAM_PARAMETERS" value="-[] proj1/nachos.conf" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.KThread" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="8fcf7ee3-81cd-4b9e-90fc-ed784a280106" name="Default Changelist" comment="" />
+      <created>1571255824101</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1571255824101</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/threads/Rendezvous.java</url>
+          <line>48</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/threads/Rendezvous.java</url>
+          <line>157</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/machine/TCB.java</url>
+          <line>172</line>
+          <option name="timeStamp" value="9" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/machine/TCB.java</url>
+          <line>282</line>
+          <option name="timeStamp" value="10" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

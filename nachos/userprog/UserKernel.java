@@ -133,7 +133,8 @@ public class UserKernel extends ThreadedKernel {
 		UserProcess process = UserProcess.newUserProcess();
 
 		String shellProgram = Machine.getShellProgramName();
-		if (!process.execute(shellProgram, new String[] {})) {
+		boolean flag = process.execute(shellProgram, new String[] {});
+		if (!flag) {
 		    System.out.println ("Could not find executable '" +
 					shellProgram + "', trying '" +
 					shellProgram + ".coff' instead.");
