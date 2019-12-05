@@ -69,6 +69,7 @@ public class VMKernel extends UserKernel {
 	    do{
 	        if (clockHandle >= ppnToProcess.length) clockHandle = 0;
 			if(ppnToProcess[clockHandle].pinned == false){
+				// if all pages are referenced but not all pinned, then evict a referenced page? 
 				notPinned = clockHandle;
 				if(ppnToProcess[clockHandle].ref == false){
 					swapOut(clockHandle);
@@ -106,7 +107,8 @@ public class VMKernel extends UserKernel {
 		ppnToProcess[ppn].pinned = false;
 		//if there is a process blocked because all pages are pined, wake it
 		if(waitlist.size() != 0){
-			waitlist.get(0).ready();
+			UThread thread = waitlist.remove(0);
+			thread.ready();
 		}
 	}
 
