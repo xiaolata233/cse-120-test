@@ -125,17 +125,27 @@ public class VMProcess extends UserProcess {
 		// Get virtual page number
 		vpn = Processor.pageFromAddress(vaddr);
 		// vpn exceed numPages ?
+		if(vpn >= pageTable.length){
+			System.out.println("vpn exceed numPages");
+			return 0;
+		}
+
+		// the key of pageTable is vpn, so no need to loop the pageTable.
+		if(!pageTable[vpn].valid) handlePageFault(vpn);
+		VMKernel.pin(pageTable[vpn].ppn);
+		VMKernel.ref(pageTable[vpn].ppn);
+		paddr = pageTable[vpn].ppn * pageSize + paddr_offset;
 
 		// Loop through our pageTable, find next valid page
-		for (int i = 0; i < pageTable.length; i++) {
-			if (pageTable[i].vpn == vpn) {
-				if(pageTable[i].valid == false) {
-					handlePageFault(vpn);
-				}
-				paddr = pageTable[i].ppn * pageSize + paddr_offset;
-				break;
-			}
-		}
+//		for (int i = 0; i < pageTable.length; i++) {
+//			if (pageTable[i].vpn == vpn) {
+//				if(pageTable[i].valid == false) {
+//					handlePageFault(vpn);
+//				}
+//				paddr = pageTable[i].ppn * pageSize + paddr_offset;
+//				break;
+//			}
+//		}
 		// Check physical address
 		if (paddr < 0 || paddr >= memory.length) {
 			System.out.println("paddr < 0 || paddr >= memory.length, returning 0");
@@ -149,20 +159,32 @@ public class VMProcess extends UserProcess {
 		offset += amount;
 		total_amount += amount;
 		boolean found = false;
+		VMKernel.unpin(pageTable[vpn].ppn);
 		vpn++;
 		// Loop until error or the entire length is read
 		while (bytes_left > 0) {
-			// Loop through our pageTable, find next valid page
-			for (int i = 0; i < pageTable.length; i++) {
-				if (pageTable[i].vpn == vpn) {
-					if(pageTable[i].valid == false){
-						handlePageFault(vpn);
-					}
-					paddr = pageTable[i].ppn * pageSize;
-					found = true;
-					break;
-				}
+			// the key of pageTable is vpn, so no need to loop the pageTable.
+			if(vpn >= pageTable.length){
+				System.out.println("vpn exceed numPages");
+				return 0;
 			}
+			if(!pageTable[vpn].valid) handlePageFault(vpn);
+			VMKernel.pin(pageTable[vpn].ppn);
+			VMKernel.ref(pageTable[vpn].ppn);
+			paddr = pageTable[vpn].ppn * pageSize;
+			found = true;
+
+			// Loop through our pageTable, find next valid page
+//			for (int i = 0; i < pageTable.length; i++) {
+//				if (pageTable[i].vpn == vpn) {
+//					if(pageTable[i].valid == false){
+//						handlePageFault(vpn);
+//					}
+//					paddr = pageTable[i].ppn * pageSize;
+//					found = true;
+//					break;
+//				}
+//			}
 			// Check validity
 			if (paddr < 0 || paddr >= memory.length || !found) {
 				System.out.println("paddr < 0 || paddr >= memory.length || !found, returning total_amount");
@@ -176,6 +198,7 @@ public class VMProcess extends UserProcess {
 			bytes_left -= amount;
 			offset += amount;
 			total_amount += amount;
+			VMKernel.unpin(pageTable[vpn].ppn);
 			vpn++;
 		}
 //		System.out.println("Exiting VM readVirtualMemory");
@@ -206,16 +229,26 @@ public class VMProcess extends UserProcess {
 		paddr_offset = Processor.offsetFromAddress(vaddr);
 		// Get virtual page number
 		vpn = Processor.pageFromAddress(vaddr);
-		// Loop through our pageTable, find next valid page
-		for (int i = 0; i < pageTable.length; i ++)
-		{
-			if (!pageTable[i].readOnly && pageTable[i].vpn == vpn)
-			{
-				if(!pageTable[i].valid) handlePageFault(pageTable[i].vpn);
-				paddr = pageTable[i].ppn * pageSize + paddr_offset;
-				break;
-			}
+		if(vpn >= pageTable.length){
+			System.out.println("vpn exceed numPages");
+			return 0;
 		}
+		// the key of pageTable is vpn, so no need to loop the pageTable.
+		if(!pageTable[vpn].valid) handlePageFault(vpn);
+		VMKernel.pin(pageTable[vpn].ppn);
+		VMKernel.ref(pageTable[vpn].ppn);
+		paddr = pageTable[vpn].ppn * pageSize + paddr_offset;
+
+		// Loop through our pageTable, find next valid page
+//		for (int i = 0; i < pageTable.length; i ++)
+//		{
+//			if (!pageTable[i].readOnly && pageTable[i].vpn == vpn)
+//			{
+//				if(!pageTable[i].valid) handlePageFault(pageTable[i].vpn);
+//				paddr = pageTable[i].ppn * pageSize + paddr_offset;
+//				break;
+//			}
+//		}
 		// Check physical address
 		if (paddr < 0 || paddr >= memory.length)
 		{
@@ -230,21 +263,33 @@ public class VMProcess extends UserProcess {
 		offset += amount;
 		total_amount += amount;
 		boolean found = false;
-		vpn ++;
+		VMKernel.unpin(pageTable[vpn].ppn);
+		vpn++;
 		// Loop until error or the entire length is read
 		while (bytes_left > 0)
 		{
-			// Loop through our pageTable, find next valid page
-			for (int i = 0; i < pageTable.length; i ++)
-			{
-				if (!pageTable[i].readOnly && pageTable[i].vpn == vpn)
-				{
-					if(!pageTable[i].valid) handlePageFault(pageTable[i].vpn);
-					paddr = pageTable[i].ppn * pageSize;
-					found = true;
-					break;
-				}
+			// the key of pageTable is vpn, so no need to loop the pageTable.
+			if(vpn >= pageTable.length){
+				System.out.println("vpn exceed numPages");
+				return 0;
 			}
+			if(!pageTable[vpn].valid) handlePageFault(vpn);
+			VMKernel.pin(pageTable[vpn].ppn);
+			VMKernel.ref(pageTable[vpn].ppn);
+			paddr = pageTable[vpn].ppn * pageSize;
+			found = true;
+
+			// Loop through our pageTable, find next valid page
+//			for (int i = 0; i < pageTable.length; i ++)
+//			{
+//				if (!pageTable[i].readOnly && pageTable[i].vpn == vpn)
+//				{
+//					if(!pageTable[i].valid) handlePageFault(pageTable[i].vpn);
+//					paddr = pageTable[i].ppn * pageSize;
+//					found = true;
+//					break;
+//				}
+//			}
 			// Check validity
 			if (paddr < 0 || paddr >= memory.length || !found)
 			{
@@ -259,7 +304,8 @@ public class VMProcess extends UserProcess {
 			bytes_left -= amount;
 			offset += amount;
 			total_amount += amount;
-			vpn ++;
+			VMKernel.pin(pageTable[vpn].ppn);
+			vpn++;
 		}
 //		System.out.println("Exiting VM writeVirtualMemory");
 		return total_amount;
@@ -312,10 +358,15 @@ public class VMProcess extends UserProcess {
 		}
 	}
 
+	// invalid the vpn in pageTable, return isDirty
 	public boolean invalidVPN(int vpn){
 		pageTable[vpn].valid = false;
 		return pageTable[vpn].dirty;
     }
+
+    public UThread getThread(){
+		return this.thread;
+	}
 
 	private static final int pageSize = Processor.pageSize;
 

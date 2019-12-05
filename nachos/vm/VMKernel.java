@@ -3,10 +3,13 @@ package nachos.vm;
 import nachos.machine.*;
 import nachos.threads.*;
 import nachos.userprog.*;
+import nachos.userprog.UThread;
 import nachos.userprog.UserKernel;
 import nachos.vm.*;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A kernel that can support multiple demand-paging user processes.
@@ -56,7 +59,6 @@ public class VMKernel extends UserKernel {
 	}
 
 	public static boolean evictPage(){
-	    // race condition
 	    int prePos = clockHandle;
 	    do{
 	        clockHandle += 1;
@@ -80,7 +82,9 @@ public class VMKernel extends UserKernel {
 	public static int getFreePPN(VMProcess process, int vpn){
 		if(free_pages.size() == 0){
 		    while(!evictPage()){
-		        //all pages are pinned, block current process.
+				System.out.println("all pages are pinned, block current thread");
+				waitlist.add(process.getThread());
+				process.getThread().sleep();
             }
 		}
 		int ppn = free_pages.removeLast();
@@ -94,7 +98,14 @@ public class VMKernel extends UserKernel {
 
 	public static void unpin(int ppn){
 		ppnToProcess[ppn].pinned = false;
-		//if there is a process blocked, wake it
+		//if there is a process blocked because all pages are pined, wake it
+		if(waitlist.size() != 0){
+			waitlist.get(0).ready();
+		}
+	}
+	
+	public static void ref(int ppn){
+		ppnToProcess[ppn].ref = true;
 	}
 
 	// dummy variables to make javac smarter
@@ -118,5 +129,7 @@ public class VMKernel extends UserKernel {
     private static Meta[] ppnToProcess = new Meta[Machine.processor().getNumPhysPages()];
 
     private static int clockHandle = 0;
+
+    private static List<UThread> waitlist = new LinkedList<>();
 
 }
