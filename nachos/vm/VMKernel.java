@@ -51,7 +51,12 @@ public class VMKernel extends UserKernel {
 	}
 
 	public static void swapOut(int ppn){
-
+		free_pages.add(clockHandle);
+		// invalid the entry in the process which owns the ppn now
+		boolean isDirty = ppnToProcess[clockHandle].process.invalidVPN(ppnToProcess[clockHandle].vpn);
+		if(isDirty){
+			//write to swap file
+		}
 	}
 
 	public static void swapIn(int ppn){
@@ -59,22 +64,23 @@ public class VMKernel extends UserKernel {
 	}
 
 	public static boolean evictPage(){
-	    int prePos = clockHandle;
+	    int prePos = clockHandle, notPinned = -1;
+		clockHandle += 1;
 	    do{
-	        clockHandle += 1;
 	        if (clockHandle >= ppnToProcess.length) clockHandle = 0;
-	        // TO DO: clock logic
-			if(ppnToProcess[clockHandle].ref == false && ppnToProcess[clockHandle].pinned == false){
-				free_pages.add(clockHandle);
-				// invalid the entry in the process which owns the ppn now
-				boolean isDirty = ppnToProcess[clockHandle].process.invalidVPN(ppnToProcess[clockHandle].vpn);
-				if(isDirty){
+			if(ppnToProcess[clockHandle].pinned == false){
+				notPinned = clockHandle;
+				if(ppnToProcess[clockHandle].ref == false){
 					swapOut(clockHandle);
+					return true;
 				}
-				return true;
 			}
 			ppnToProcess[clockHandle].ref = false;
-        }while(clockHandle != prePos);
+        }while(clockHandle++ != prePos);
+	    if(notPinned != -1) {
+	    	swapOut(notPinned);
+	    	return true;
+		}
 	    //all pages are pinned;
 	    return false;
     }
