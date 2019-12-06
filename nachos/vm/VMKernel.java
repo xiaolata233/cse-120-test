@@ -144,4 +144,6 @@ public class VMKernel extends UserKernel {
     private static List<UThread> waitlist = new LinkedList<>();
 
     private static Lock[] ppnLocks = new Lock[Machine.processor().getNumPhysPages()];
+	
+    private static Lock phyMemoLock = new Lock();
 }
