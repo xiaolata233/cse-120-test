@@ -27,6 +27,9 @@ public class VMKernel extends UserKernel {
 	 */
 	public void initialize(String[] args) {
 		super.initialize(args);
+		for(int ppn = 0; ppn < ppnLocks.length; ppn++){
+			ppnLocks[ppn] = new Lock();
+		}
 	}
 
 	/**
@@ -140,4 +143,5 @@ public class VMKernel extends UserKernel {
 
     private static List<UThread> waitlist = new LinkedList<>();
 
+    private static Lock[] ppnLocks = new Lock[Machine.processor().getNumPhysPages()];
 }
